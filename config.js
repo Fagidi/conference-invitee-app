@@ -5,14 +5,14 @@
 const CONFIG = {
 
   // ① Paste your Google Apps Script Web App URL here after deployment
-  //    It will look like: https://script.google.com/macros/s/XXXXX.../exec
-  SCRIPT_URL: "https://script.google.com/macros/s/AKfycbw2lkXn_KRXZdwhxRwaOzwHSlLL5np3CxkZ5AkKRr60wnIRsNh30zw7Yp81guhS3H9V/exec",
+  SCRIPT_URL: "YOUR_GOOGLE_APPS_SCRIPT_URL_HERE",
 
-  // ② Cell Centres — add, remove, or rename as needed
-  CELL_CENTRES: [
-    "Gwagwalada",
-    "Lugbe",
-    "Kuje",
-  ]
+  // ② Cell Centres — add more anytime using the same format:
+  //    "Display Name": "PREFIX"
+  CELL_CENTRES: {
+    "Kuje":        "KU",
+    "Lugbe":       "LU",
+    "Gwagwalada":  "GW"
+  }
 
 };

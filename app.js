@@ -16,6 +16,7 @@
   const toast           = document.getElementById("toast");
   const countDown       = document.getElementById("countDown");
   const countUp         = document.getElementById("countUp");
+  const cellCentreEl    = document.getElementById("cellCentre");
 
   init();
 
@@ -26,18 +27,46 @@
     countDown.addEventListener("click", () => nudgeCount(-1));
     countUp.addEventListener("click",   () => nudgeCount(1));
     addMoreBtn.addEventListener("click", () => { addInvitee(); syncCount(); });
+    cellCentreEl.addEventListener("change", onCellCentreChange);
     form.addEventListener("submit", onSubmit);
   }
 
+  /* ── Cell Centre dropdown ────────────────────────── */
   function populateCellCentres() {
-    const sel = document.getElementById("cellCentre");
-    CONFIG.CELL_CENTRES.forEach(name => {
+    Object.keys(CONFIG.CELL_CENTRES).forEach(name => {
       const opt = document.createElement("option");
       opt.value = name; opt.textContent = name;
-      sel.appendChild(opt);
+      cellCentreEl.appendChild(opt);
     });
   }
 
+  /* ── Get prefix for selected Cell Centre ─────────── */
+  function getPrefix() {
+    const selected = cellCentreEl.value;
+    return CONFIG.CELL_CENTRES[selected] || "XX";
+  }
+
+  /* ── When Cell Centre changes, refresh all form numbers ── */
+  function onCellCentreChange() {
+    refreshAllFormNumbers();
+  }
+
+  function refreshAllFormNumbers() {
+    const prefix = getPrefix();
+    inviteeList.querySelectorAll(".invitee-card").forEach((card, i) => {
+      const input = card.querySelector('[data-field="formNum"]');
+      if (input) {
+        const num = String(i + 1).padStart(2, "0");
+        input.value = `${prefix}-${num}`;
+        // sync into state
+        const id = parseInt(card.dataset.id, 10);
+        const entry = inviteeData.find(d => d.id === id);
+        if (entry) entry.formNum = input.value;
+      }
+    });
+  }
+
+  /* ── Stepper ─────────────────────────────────────── */
   function nudgeCount(delta) {
     const current = parseInt(inviteCountEl.value, 10) || 0;
     const next = Math.max(1, Math.min(100, current + delta));
@@ -49,6 +78,7 @@
     inviteCountEl.value = inviteeData.length;
   }
 
+  /* ── Count change ────────────────────────────────── */
   function onCountChange() {
     const n = parseInt(inviteCountEl.value, 10);
     if (!n || n < 1) {
@@ -66,10 +96,17 @@
     else if (clamped < current) for (let i = current; i > clamped; i--) removeLast();
   }
 
+  /* ── Add invitee card ────────────────────────────── */
   function addInvitee(animate = true) {
     inviteeCount++;
     const id = inviteeCount;
+    const index = inviteeData.length; // position before push
     inviteeData.push({ id, name: "", formNum: "", whatsapp: "" });
+
+    // Auto-generate form number
+    const prefix = getPrefix();
+    const num    = String(index + 1).padStart(2, "0");
+    const autoFormNum = cellCentreEl.value ? `${prefix}-${num}` : "";
 
     const card = document.createElement("div");
     card.className = "invitee-card";
@@ -78,7 +115,7 @@
 
     card.innerHTML = `
       <div class="invitee-card-head">
-        <span class="invitee-label">Invitee ${inviteeData.length}</span>
+        <span class="invitee-label">Invitee ${index + 1}</span>
         <button type="button" class="btn-remove" data-id="${id}" title="Remove">
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6"/></svg>
           Remove
@@ -92,9 +129,9 @@
         </div>
         <div class="field-row">
           <div class="field">
-            <label>Form Number <span class="req">*</span></label>
-            <input type="text" placeholder="e.g. F-001" data-field="formNum" data-id="${id}" required />
-            <span class="field-err" id="err-formNum-${id}"></span>
+            <label>Form Number</label>
+            <input type="text" data-field="formNum" data-id="${id}" value="${autoFormNum}" readonly
+              style="background:#F7F5F2;color:#5C5652;cursor:default" />
           </div>
           <div class="field">
             <label>WhatsApp Number <span class="req">*</span></label>
@@ -105,6 +142,7 @@
       </div>
     `;
 
+    // Sync name & whatsapp into state on input
     card.querySelectorAll("input[data-field]").forEach(input => {
       input.addEventListener("input", () => {
         const entry = inviteeData.find(d => d.id === id);
@@ -112,10 +150,15 @@
       });
     });
 
+    // Set initial form number in state
+    const entry = inviteeData.find(d => d.id === id);
+    if (entry) entry.formNum = autoFormNum;
+
     card.querySelector(".btn-remove").addEventListener("click", () => {
       if (inviteeData.length <= 1) return;
       removeById(id);
       syncCount();
+      refreshAllFormNumbers();
     });
 
     inviteeList.appendChild(card);
@@ -136,12 +179,13 @@
   }
 
   function renumber() {
-    inviteeList.querySelectorAll(".invitee-label").forEach((el, i) => {
-      el.textContent = `Invitee ${i + 1}`;
+    inviteeList.querySelectorAll(".invitee-card").forEach((card, i) => {
+      const label = card.querySelector(".invitee-label");
+      if (label) label.textContent = `Invitee ${i + 1}`;
     });
   }
 
-  /* ── Validation ─────────────────────────────────── */
+  /* ── Validation ──────────────────────────────────── */
   function validate() {
     let ok = true;
 
@@ -157,10 +201,10 @@
       else clearErr(el, err);
     });
 
-    inviteeData.forEach((entry, idx) => {
+    inviteeData.forEach((entry) => {
       const card = inviteeList.querySelector(`[data-id="${entry.id}"]`);
       if (!card) return;
-      [["name","Invitee Name"],["formNum","Form Number"],["whatsapp","WhatsApp Number"]].forEach(([field, label]) => {
+      [["name","Invitee Name"],["whatsapp","WhatsApp Number"]].forEach(([field, label]) => {
         const input = card.querySelector(`[data-field="${field}"]`);
         const err   = document.getElementById(`err-${field}-${entry.id}`);
         if (!input || !err) return;
@@ -181,7 +225,7 @@
     if (errEl) errEl.textContent = "";
   }
 
-  /* ── Submit ─────────────────────────────────────── */
+  /* ── Submit ──────────────────────────────────────── */
   async function onSubmit(e) {
     e.preventDefault();
     if (!validate()) { showToast("Please fill in all required fields."); return; }
@@ -190,9 +234,9 @@
     }
 
     setLoading(true);
-    const timestamp  = new Date().toISOString();
+    const timestamp   = new Date().toISOString();
     const inviterName = document.getElementById("inviterName").value.trim();
-    const cellCentre  = document.getElementById("cellCentre").value;
+    const cellCentre  = cellCentreEl.value;
     const cellLeader  = document.getElementById("cellLeader").value.trim();
 
     inviteeList.querySelectorAll(".invitee-card").forEach((card, i) => {
