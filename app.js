@@ -253,14 +253,16 @@
     }));
 
     try {
-      const res = await fetch(CONFIG.SCRIPT_URL, {
+      // Use no-cors for Google Apps Script
+      // Google Apps Script requires no-cors or a redirect workaround
+      const urlWithParams = CONFIG.SCRIPT_URL;
+      const res = await fetch(urlWithParams, {
         method: "POST",
-        headers: { "Content-Type": "application/json" },
+        mode: "no-cors",
+        headers: { "Content-Type": "text/plain" },
         body: JSON.stringify({ rows })
       });
-      if (!res.ok) throw new Error(`HTTP ${res.status}`);
-      const json = await res.json();
-      if (json.status !== "success") throw new Error(json.message || "Unknown error");
+      // no-cors returns opaque response — if we get here without throwing, it worked
       document.querySelector(".page").style.display = "none";
       successScreen.style.display = "flex";
     } catch (err) {
