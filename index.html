@@ -1,0 +1,134 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Conference Invitee Report</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+  <div class="page">
+
+    <!-- HERO HEADER -->
+    <header class="hero">
+      <div class="hero-inner">
+        <div class="hero-eyebrow">
+          <span class="dot"></span>
+          Conference 2025
+        </div>
+        <h1>Invitee Report</h1>
+        <p>Track everyone you've personally invited. Fill in your details below — it only takes a minute.</p>
+      </div>
+      <div class="hero-wave">
+        <svg viewBox="0 0 1440 80" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="none">
+          <path d="M0,40 C360,80 1080,0 1440,40 L1440,80 L0,80 Z" fill="#F7F5F2"/>
+        </svg>
+      </div>
+    </header>
+
+    <main class="main">
+      <form id="mainForm" novalidate>
+
+        <!-- CARD 1: Inviter Details -->
+        <div class="card" id="card-inviter">
+          <div class="card-head">
+            <div class="step-badge">1</div>
+            <div>
+              <h2>Your Details</h2>
+              <p class="card-desc">Tell us who is submitting this report.</p>
+            </div>
+          </div>
+
+          <div class="fields">
+            <div class="field">
+              <label for="inviterName">Your Full Name <span class="req">*</span></label>
+              <input type="text" id="inviterName" placeholder="e.g. John Adeyemi" required />
+              <span class="field-err" id="err-inviterName"></span>
+            </div>
+
+            <div class="field-row">
+              <div class="field">
+                <label for="cellCentre">Cell Centre <span class="req">*</span></label>
+                <div class="select-wrap">
+                  <select id="cellCentre" required>
+                    <option value="">Select Cell Centre</option>
+                  </select>
+                  <svg class="select-chevron" viewBox="0 0 20 20" fill="none" xmlns="http://www.w3.org/2000/svg"><path d="M5 8l5 5 5-5" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg>
+                </div>
+                <span class="field-err" id="err-cellCentre"></span>
+              </div>
+
+              <div class="field">
+                <label for="cellLeader">Cell Leader's Name <span class="req">*</span></label>
+                <input type="text" id="cellLeader" placeholder="e.g. Pastor Sarah" required />
+                <span class="field-err" id="err-cellLeader"></span>
+              </div>
+            </div>
+
+            <div class="field field--count">
+              <label for="inviteCount">How many people did you invite? <span class="req">*</span></label>
+              <div class="count-wrap">
+                <button type="button" class="count-btn" id="countDown" aria-label="Decrease">−</button>
+                <input type="number" id="inviteCount" min="1" max="100" placeholder="0" required />
+                <button type="button" class="count-btn" id="countUp" aria-label="Increase">+</button>
+              </div>
+              <span class="field-hint">Enter a number to generate the invitee forms below.</span>
+              <span class="field-err" id="err-inviteCount"></span>
+            </div>
+          </div>
+        </div>
+
+        <!-- CARD 2: Invitees (dynamic) -->
+        <div class="card card--invitees" id="inviteesSection" style="display:none">
+          <div class="card-head">
+            <div class="step-badge">2</div>
+            <div>
+              <h2>Invitee Details</h2>
+              <p class="card-desc">Fill in details for each person you invited.</p>
+            </div>
+          </div>
+
+          <div id="inviteeList"></div>
+
+          <button type="button" class="btn-add" id="addMoreBtn">
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+            Add Another Invitee
+          </button>
+        </div>
+
+        <!-- SUBMIT -->
+        <div class="submit-area" id="submitRow" style="display:none">
+          <button type="submit" class="btn-submit" id="submitBtn">
+            <span id="submitLabel">Submit Report</span>
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M12 5l7 7-7 7"/></svg>
+          </button>
+          <p class="submit-hint">Your data is saved securely to Google Sheets.</p>
+        </div>
+
+      </form>
+    </main>
+
+  </div>
+
+  <!-- SUCCESS STATE -->
+  <div class="success-screen" id="successScreen" style="display:none">
+    <div class="success-inner">
+      <div class="success-icon">
+        <svg width="32" height="32" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg>
+      </div>
+      <h2>Report Submitted!</h2>
+      <p>Your invitee report has been recorded. Thank you for bringing people to the conference!</p>
+      <button class="btn-submit" onclick="resetForm()">Submit Another Report</button>
+    </div>
+  </div>
+
+  <!-- TOAST -->
+  <div class="toast" id="toast" role="alert"></div>
+
+  <script src="config.js"></script>
+  <script src="app.js"></script>
+</body>
+</html>
