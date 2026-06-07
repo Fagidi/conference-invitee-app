@@ -44,7 +44,7 @@ body{
 
 /* ─── Hero ───────────────────────────────────────── */
 .hero{
-  background:linear-gradient(145deg,#2B1A0F 0%,#C8541A 60%,#E8813A 100%);
+  background:linear-gradient(145deg,#000D2E 0%,#001B59 60%,#002580 100%);
   color:var(--white);
   position:relative;
   padding:64px 24px 0;
